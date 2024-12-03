@@ -8,7 +8,7 @@ const PORT = 4000;
 
 // Configure CORS to allow requests only from GitHub Pages
 app.use(cors({
-  origin: 'http://adedoyinashogbon.github.io', // Allow GitHub Pages
+  origin: 'https://adedoyinashogbon.github.io', // Allow GitHub Pages
 }));
 
 // Middleware
@@ -78,5 +78,5 @@ app.post('/orders', async (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Backend server running at http://localhost:${PORT}`);
+  console.log(`Backend server running at https://localhost:${PORT}`);
 });
