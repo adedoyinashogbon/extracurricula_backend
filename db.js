@@ -1,17 +1,15 @@
 const { MongoClient } = require('mongodb');
 
-const uri = 'mongodb+srv://Austin:Uloma@extracurriculacluster.eqzpu.mongodb.net/?retryWrites=true&w=majority&appName=ExtracurriculaCluster'; // Replace with your connection string
+const uri = 'mongodb+srv://Austin:Uloma@extracurriculacluster.eqzpu.mongodb.net/extracurricula?retryWrites=true&w=majority';
 const client = new MongoClient(uri);
 
 async function connectToDatabase() {
   try {
-    if (!client.isConnected()) {
-      await client.connect();
-    }
+    await client.connect();
     console.log('Connected to MongoDB Atlas');
-    return client.db('extracurricula'); // Replace with your database name
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
+    return client.db('extracurricula');
+  } catch (err) {
+    console.error('Error connecting to MongoDB:', err);
     process.exit(1);
   }
 }
