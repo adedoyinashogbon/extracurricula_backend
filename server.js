@@ -6,7 +6,12 @@ const connectToDatabase = require('./db');
 const app = express();
 const PORT = 4000;
 
-app.use(cors());
+// Configure CORS to allow requests only from GitHub Pages
+app.use(cors({
+  origin: 'https://adedoyinashogbon.github.io', // Allow GitHub Pages
+}));
+
+// Middleware
 app.use(express.json());
 app.use(logger); // Custom middleware for logging
 
