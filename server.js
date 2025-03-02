@@ -1,24 +1,24 @@
 require('dotenv').config(); // ✅ Load environment variables
 const express = require('express');
 const cors = require('cors');
-const { ObjectId } = require('mongodb'); // ✅ Import ObjectId
+const { ObjectId } = require('mongodb'); // ✅ Import ObjectId for MongoDB updates
 const logger = require('./middleware/logger');
 const connectToDatabase = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 4000; // ✅ Support Render's dynamic port
+const PORT = process.env.PORT || 4000; // ✅ Support dynamic port for Render
 
-// ✅ Configure CORS to prevent request blocking
+// ✅ Improved CORS setup
 app.use(cors({
-  origin: '*', // ✅ Allows requests from any frontend (Change in production)
-  methods: ['GET', 'POST', 'PUT'], // ✅ Only required methods
-  allowedHeaders: ['Content-Type'], // ✅ Prevent security issues
+  origin: ['https://adedoyinashogbon.github.io/extracurricula_frontend/'], // ✅ Allow only trusted frontends
+  methods: ['GET', 'POST', 'PUT'],
+  allowedHeaders: ['Content-Type'],
 }));
 
 app.use(express.json());
-app.use(logger); // ✅ Custom middleware for logging
+app.use(logger); // ✅ Middleware for logging requests
 
-// ✅ Static file middleware for serving images
+// ✅ Serve static assets like images/icons
 app.use('/icons', express.static('public/icons'));
 
 // ✅ MongoDB Connection
@@ -33,7 +33,7 @@ connectToDatabase()
     process.exit(1);
   });
 
-// ✅ Default route for Render health check
+// ✅ Default route to check if the server is running
 app.get('/', (req, res) => {
   res.send('🚀 Extracurricula Backend is Running on Render!');
 });
@@ -42,9 +42,8 @@ app.get('/', (req, res) => {
 app.get('/lessons', async (req, res) => {
   try {
     if (!db) {
-      return res.status(500).json({ error: 'Database not connected' });
+      return res.status(500).json({ error: '❌ Database not connected' });
     }
-    
     const lessons = await db.collection('lessons').find().toArray();
     res.status(200).json(lessons);
   } catch (err) {
@@ -60,11 +59,11 @@ app.put('/lessons/:id', async (req, res) => {
     const { spaces } = req.body;
 
     if (!ObjectId.isValid(lessonId)) {
-      return res.status(400).json({ error: 'Invalid lesson ID' });
+      return res.status(400).json({ error: '❌ Invalid lesson ID' });
     }
 
     if (!db) {
-      return res.status(500).json({ error: 'Database not connected' });
+      return res.status(500).json({ error: '❌ Database not connected' });
     }
 
     const result = await db.collection('lessons').updateOne(
@@ -75,7 +74,7 @@ app.put('/lessons/:id', async (req, res) => {
     if (result.modifiedCount === 1) {
       res.status(200).json({ success: true });
     } else {
-      res.status(404).json({ error: 'Lesson not found' });
+      res.status(404).json({ error: '❌ Lesson not found' });
     }
   } catch (err) {
     console.error('❌ Error updating lesson:', err);
@@ -90,7 +89,7 @@ app.post('/orders', async (req, res) => {
     const order = { name, phone, lessonIds, createdAt: new Date() };
 
     if (!db) {
-      return res.status(500).json({ error: 'Database not connected' });
+      return res.status(500).json({ error: '❌ Database not connected' });
     }
 
     const result = await db.collection('orders').insertOne(order);
