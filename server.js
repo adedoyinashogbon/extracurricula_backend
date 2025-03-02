@@ -5,16 +5,22 @@ const logger = require('./middleware/logger');
 const connectToDatabase = require('./db');
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000; // ✅ Support Render's dynamic port
 
-app.use(cors());
+// ✅ Configure CORS to prevent request blocking
+app.use(cors({
+  origin: '*', // ✅ Allows requests from any frontend
+  methods: ['GET', 'POST', 'PUT'], // ✅ Allow only required methods
+  allowedHeaders: ['Content-Type'], // ✅ Prevent security issues
+}));
+
 app.use(express.json());
 app.use(logger); // ✅ Custom middleware for logging
 
-// Static file middleware for serving images
+// ✅ Static file middleware for serving images
 app.use('/icons', express.static('public/icons'));
 
-// MongoDB connection
+// ✅ MongoDB Connection
 let db;
 connectToDatabase()
   .then((database) => {
@@ -39,12 +45,16 @@ app.get('/lessons', async (req, res) => {
 
 // ✅ Update lesson spaces (uses `_id` instead of `id`)
 app.put('/lessons/:id', async (req, res) => {
-  const lessonId = req.params.id; // ✅ Keep it as a string (MongoDB `_id`)
+  const lessonId = req.params.id;
   const { spaces } = req.body;
 
   try {
+    if (!ObjectId.isValid(lessonId)) {
+      return res.status(400).json({ error: 'Invalid lesson ID' });
+    }
+
     const result = await db.collection('lessons').updateOne(
-      { _id: new ObjectId(lessonId) }, // ✅ Use ObjectId
+      { _id: new ObjectId(lessonId) },
       { $set: { spaces } }
     );
 
@@ -59,7 +69,7 @@ app.put('/lessons/:id', async (req, res) => {
   }
 });
 
-// ✅ Create a new order (Already Correct)
+// ✅ Create a new order
 app.post('/orders', async (req, res) => {
   const { name, phone, lessonIds } = req.body;
   const order = { name, phone, lessonIds, createdAt: new Date() };
