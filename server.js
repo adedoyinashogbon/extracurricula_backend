@@ -1,7 +1,7 @@
 require('dotenv').config(); // ✅ Load environment variables
 const express = require('express');
 const cors = require('cors');
-const { ObjectId } = require('mongodb'); // ✅ Import ObjectId for MongoDB updates
+const { ObjectId } = require('mongodb'); // ✅ Import ObjectId
 const logger = require('./middleware/logger');
 const connectToDatabase = require('./db');
 
@@ -44,9 +44,8 @@ app.get('/', (req, res) => {
 // ✅ Fetch all lessons
 app.get('/lessons', async (req, res) => {
   try {
-    if (!db) {
-      return res.status(500).json({ error: '❌ Database not connected' });
-    }
+    if (!db) return res.status(500).json({ error: '❌ Database not connected' });
+
     const lessons = await db.collection('lessons').find().toArray();
     res.status(200).json(lessons);
   } catch (err) {
@@ -55,18 +54,26 @@ app.get('/lessons', async (req, res) => {
   }
 });
 
-// ✅ Update lesson spaces (uses `_id` instead of `id`)
+// ✅ Fix: Update lesson spaces with proper `_id`
 app.put('/lessons/:id', async (req, res) => {
   try {
-    const lessonId = req.params.id;
+    const lessonId = req.params.id.trim();
     const { spaces } = req.body;
 
+    // ✅ Validate if lessonId is a valid MongoDB ObjectId
     if (!ObjectId.isValid(lessonId)) {
-      return res.status(400).json({ error: '❌ Invalid lesson ID' });
+      return res.status(400).json({ error: '❌ Invalid lesson ID format' });
     }
 
     if (!db) {
       return res.status(500).json({ error: '❌ Database not connected' });
+    }
+
+    // ✅ Check if lesson exists before updating
+    const lesson = await db.collection('lessons').findOne({ _id: new ObjectId(lessonId) });
+
+    if (!lesson) {
+      return res.status(404).json({ error: `❌ Lesson with ID ${lessonId} not found` });
     }
 
     const result = await db.collection('lessons').updateOne(
@@ -75,9 +82,9 @@ app.put('/lessons/:id', async (req, res) => {
     );
 
     if (result.modifiedCount === 1) {
-      res.status(200).json({ success: true });
+      res.status(200).json({ success: true, message: `✅ Spaces updated for lesson ${lessonId}` });
     } else {
-      res.status(404).json({ error: '❌ Lesson not found' });
+      res.status(400).json({ error: '❌ No changes made to lesson spaces' });
     }
   } catch (err) {
     console.error('❌ Error updating lesson:', err);
