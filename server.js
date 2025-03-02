@@ -10,7 +10,10 @@ const PORT = process.env.PORT || 4000; // ✅ Support dynamic port for Render
 
 // ✅ Improved CORS setup
 app.use(cors({
-  origin: ['https://adedoyinashogbon.github.io/extracurricula_frontend/'], // ✅ Allow only trusted frontends
+  origin: [
+    'http://localhost:8080',  // ✅ Allow local development
+    'https://adedoyinashogbon.github.io' // ✅ Allow GitHub Pages frontend
+  ],
   methods: ['GET', 'POST', 'PUT'],
   allowedHeaders: ['Content-Type'],
 }));
