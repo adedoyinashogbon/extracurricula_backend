@@ -1,3 +1,4 @@
+require('dotenv').config(); // ✅ Load environment variables
 const express = require('express');
 const cors = require('cors');
 const { ObjectId } = require('mongodb'); // ✅ Import ObjectId
@@ -9,8 +10,8 @@ const PORT = process.env.PORT || 4000; // ✅ Support Render's dynamic port
 
 // ✅ Configure CORS to prevent request blocking
 app.use(cors({
-  origin: '*', // ✅ Allows requests from any frontend
-  methods: ['GET', 'POST', 'PUT'], // ✅ Allow only required methods
+  origin: '*', // ✅ Allows requests from any frontend (Change in production)
+  methods: ['GET', 'POST', 'PUT'], // ✅ Only required methods
   allowedHeaders: ['Content-Type'], // ✅ Prevent security issues
 }));
 
@@ -32,9 +33,18 @@ connectToDatabase()
     process.exit(1);
   });
 
+// ✅ Default route for Render health check
+app.get('/', (req, res) => {
+  res.send('🚀 Extracurricula Backend is Running on Render!');
+});
+
 // ✅ Fetch all lessons
 app.get('/lessons', async (req, res) => {
   try {
+    if (!db) {
+      return res.status(500).json({ error: 'Database not connected' });
+    }
+    
     const lessons = await db.collection('lessons').find().toArray();
     res.status(200).json(lessons);
   } catch (err) {
@@ -45,12 +55,16 @@ app.get('/lessons', async (req, res) => {
 
 // ✅ Update lesson spaces (uses `_id` instead of `id`)
 app.put('/lessons/:id', async (req, res) => {
-  const lessonId = req.params.id;
-  const { spaces } = req.body;
-
   try {
+    const lessonId = req.params.id;
+    const { spaces } = req.body;
+
     if (!ObjectId.isValid(lessonId)) {
       return res.status(400).json({ error: 'Invalid lesson ID' });
+    }
+
+    if (!db) {
+      return res.status(500).json({ error: 'Database not connected' });
     }
 
     const result = await db.collection('lessons').updateOne(
@@ -71,10 +85,14 @@ app.put('/lessons/:id', async (req, res) => {
 
 // ✅ Create a new order
 app.post('/orders', async (req, res) => {
-  const { name, phone, lessonIds } = req.body;
-  const order = { name, phone, lessonIds, createdAt: new Date() };
-
   try {
+    const { name, phone, lessonIds } = req.body;
+    const order = { name, phone, lessonIds, createdAt: new Date() };
+
+    if (!db) {
+      return res.status(500).json({ error: 'Database not connected' });
+    }
+
     const result = await db.collection('orders').insertOne(order);
     res.status(201).json({ success: true, orderId: result.insertedId });
   } catch (err) {
@@ -85,5 +103,5 @@ app.post('/orders', async (req, res) => {
 
 // ✅ Start the server
 app.listen(PORT, () => {
-  console.log(`🚀 Backend server running at http://localhost:${PORT}`);
+  console.log(`🚀 Backend server running at https://extracurricula-backend.onrender.com`);
 });
