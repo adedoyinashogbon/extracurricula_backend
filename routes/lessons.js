@@ -1,13 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { ObjectId } = require('mongodb'); // ✅ Import ObjectId
-const connectToDatabase = require('../db'); // ✅ Correct import path
+const { ObjectId } = require('mongodb');
+const connectToDatabase = require('../db'); // ✅ Ensure correct DB connection
 
-// ✅ Fetch all lessons
+// ✅ Fetch all lessons (with optional search)
 router.get('/', async (req, res) => {
   try {
     const db = await connectToDatabase();
-    const lessons = await db.collection('lessons').find().toArray();
+    const searchQuery = req.query.q ? req.query.q.trim() : ''; // ✅ Read search param
+
+    let filter = {};
+    if (searchQuery) {
+      filter = {
+        $or: [
+          { title: { $regex: searchQuery, $options: 'i' } }, // ✅ Search in title
+          { location: { $regex: searchQuery, $options: 'i' } }, // ✅ Search in location
+          { price: { $regex: searchQuery, $options: 'i' } }, // ✅ Search in price
+          { spaces: { $regex: searchQuery, $options: 'i' } } // ✅ Search in spaces
+        ]
+      };
+    }
+
+    const lessons = await db.collection('lessons').find(filter).toArray();
     res.status(200).json(lessons);
   } catch (error) {
     console.error('❌ Error fetching lessons:', error);
@@ -18,23 +32,23 @@ router.get('/', async (req, res) => {
 // ✅ Update lesson spaces (PUT /lessons/:id)
 router.put('/:id', async (req, res) => {
   try {
-    const lessonId = req.params.id; // ✅ Keep as string
+    const lessonId = req.params.id;
 
-    // ✅ Check if lessonId is a valid ObjectId
+    // ✅ Ensure valid ObjectId
     if (!ObjectId.isValid(lessonId)) {
       return res.status(400).json({ error: 'Invalid lesson ID' });
     }
 
     const { spaces } = req.body;
 
-    // ✅ Ensure `spaces` is a valid number (prevents empty or string values)
+    // ✅ Validate `spaces` input
     if (typeof spaces !== 'number' || spaces < 0) {
-      return res.status(400).json({ error: 'Invalid spaces value. Must be a positive number.' });
+      return res.status(400).json({ error: 'Invalid spaces value. Must be a non-negative number.' });
     }
 
     const db = await connectToDatabase();
     const result = await db.collection('lessons').updateOne(
-      { _id: new ObjectId(lessonId) }, // ✅ Use `_id`
+      { _id: new ObjectId(lessonId) },
       { $set: { spaces } }
     );
 
