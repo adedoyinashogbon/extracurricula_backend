@@ -81,3 +81,7 @@ This backend is designed to work with the [ExtraCurricula Frontend](https://gith
 
 The backend is deployed on Render.com at:
 https://extracurricula-backend.onrender.com
+
+## 📝 License
+
+This project is licensed under [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
