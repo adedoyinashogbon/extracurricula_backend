@@ -2,7 +2,7 @@
 
 A Node.js/Express backend API for the ExtraCurricula application, providing endpoints for managing lessons and orders.
 
-## 🚀 Features
+## Features
 
 - RESTful API for lessons and orders management
 - MongoDB Atlas integration for data persistence
@@ -10,7 +10,7 @@ A Node.js/Express backend API for the ExtraCurricula application, providing endp
 - Validation for data inputs
 - Deployed on Render.com
 
-## 📋 API Endpoints
+## API Endpoints
 
 ### Lessons
 
@@ -21,7 +21,7 @@ A Node.js/Express backend API for the ExtraCurricula application, providing endp
 
 - `POST /orders` - Create a new order with customer information and lesson selections
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - Node.js
 - Express.js
@@ -29,7 +29,7 @@ A Node.js/Express backend API for the ExtraCurricula application, providing endp
 - CORS for cross-origin requests
 - dotenv for environment variable management
 
-## 🔧 Setup & Installation
+## Setup & Installation
 
 1. Clone the repository:
    ```
@@ -58,7 +58,7 @@ A Node.js/Express backend API for the ExtraCurricula application, providing endp
    npm start
    ```
 
-## 📦 Project Structure
+## Project Structure
 
 ```
 extracurricula_backend/
@@ -73,15 +73,15 @@ extracurricula_backend/
 └── .env                 # Environment variables (not in repo)
 ```
 
-## 🔄 Integration with Frontend
+## Integration with Frontend
 
 This backend is designed to work with the [ExtraCurricula Frontend](https://github.com/adedoyinashogbon/extracurricula_frontend) application. The API supports CORS for both local development and the deployed GitHub Pages frontend.
 
-## 🚀 Deployment
+## Deployment
 
 The backend is deployed on Render.com at:
 https://extracurricula-backend.onrender.com
 
-## 📝 License
+## License
 
 This project is licensed under [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
